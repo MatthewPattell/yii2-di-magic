@@ -35,7 +35,7 @@ return [
                 ARModel::class  => function (Container $container) {
                     return $container->invoke([DIClassBuilder::class, 'build'], [
                         'className'     => ARModel::class,
-                        'requestFields' => ['id', 'model_id'], // array request fields
+                        'requestFields' => ['id', 'model_id'], // array request fields (find by primaryKey)
                         'errorMessage'  => Yii::t('app', 'Model not found'),
                     ]);
                 },
@@ -43,7 +43,7 @@ return [
                 ARModel2::class  => function (Container $container) {
                     return $container->invoke([DIClassBuilder::class, 'build'], [
                         'className'     => ARModel2::class,
-                        'requestFields' => ['requestField' => 'modelColumn', 'requestField2' => 'modelColumn', 'modelColumn'],
+                        'requestFields' => ['requestField' => 'modelColumn', 'requestField2' => 'modelColumn', 'requestFiled'], // find by primary key or modelColumn
                         'errorMessage'  => Yii::t('app', 'Model not found'),
                     ]);
                 },
