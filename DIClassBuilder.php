@@ -71,6 +71,14 @@ abstract class DIClassBuilder
      */
     private static function getRequestParam($name)
     {
+        // For console app
+        if (Yii::$app->request instanceof yii\console\Request) {
+            preg_match('/-' . $name . '=([^\s]+)/', implode(' ', Yii::$app->request->params), $matches);
+
+            return !empty($matches[1]) ? $matches[1] : NULL;
+        }
+
+        // For web app
         return Yii::$app->request->post($name) ? : Yii::$app->request->get($name);
     }
 }
