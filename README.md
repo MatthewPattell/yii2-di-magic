@@ -42,6 +42,8 @@ return [
                     'requestFields' => ['requestField' => 'modelColumn', 'requestField2' => 'modelColumn', 'requestFiled'], // find by primary key or modelColumn
                     'errorMessage'  => Yii::t('app', 'Model not found'),
                 ]);
+                
+                ARModel3::class  => DIClassBuilder::bind(); // find by id default
             ],
         ],
     ...
