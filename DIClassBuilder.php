@@ -8,11 +8,12 @@
 
 namespace MP\DIMagick;
 
+use Yii;
+use yii\base\InvalidConfigException;
 use yii\db\ActiveRecord;
 use yii\di\Container;
 use yii\di\NotInstantiableException;
 use yii\web\NotFoundHttpException;
-use Yii;
 
 /**
  * Class    DIClassBuilder
@@ -25,19 +26,36 @@ abstract class DIClassBuilder
     /**
      * Build AR model
      *
-     * @param Container           $container
-     * @param string|ActiveRecord $className
-     * @param array               $requestFields
-     * @param null|string         $errorMessage
+     * @param Container $container
+     * @param array     $buildParams
+     * @param \Closure  $selfClosure
+     * @param array     $params
+     * @param array     $config
      *
      * @return mixed
      * @throws NotFoundHttpException
      */
-    public static function build(Container $container, $className, $requestFields = ['id'], $errorMessage = NULL)
+    public static function build(Container $container, array $buildParams = [], \Closure $selfClosure = NULL, array $params = [], array $config = [])
     {
-        $id      = NULL;
-        $model   = NULL;
-        $field   = !empty($className::primaryKey()[0]) ? $className::primaryKey()[0] : NULL;
+        $id            = NULL;
+        $model         = NULL;
+        $className     = $buildParams['className'] ?? array_search($selfClosure, Yii::$container->getDefinitions());
+        $requestFields = $buildParams['requestFields'] ?? ['id'];
+        $errorMessage  = $buildParams['errorMessage'] ?? NULL;
+
+        if (!$className) {
+            throw new InvalidConfigException(Yii::t('app', 'The class for dependency is not specified.'));
+        }
+
+        if (!self::checkNeedResolveClass($className) || isset($params['empty']) && $params['empty']) {
+            if (isset($params['empty'])) {
+                unset($params['empty']);
+            }
+
+            return Yii::$container->buildClass($className, $params, $config, $selfClosure);
+        }
+
+        $field = !empty($className::primaryKey()[0]) ? $className::primaryKey()[0] : NULL;
 
         if (!empty($requestFields)) {
             foreach ($requestFields as $field_ => $requestField) {
@@ -80,5 +98,56 @@ abstract class DIClassBuilder
 
         // For web app
         return Yii::$app->request->post($name) ? : Yii::$app->request->get($name);
+    }
+
+    /**
+     * Check if need resolve class
+     *
+     * @param string $className
+     *
+     * @return bool
+     */
+    private static function checkNeedResolveClass(string $className): bool
+    {
+        $resolveParams = Yii::$container->getDIBuilderResolveParams();
+
+        if (!empty($resolveParams)) {
+            foreach ($resolveParams as $resolveParam) {
+                if (isset($resolveParam['class']) && $resolveParam['class'] === $className) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Bind dependency class
+     *
+     * @param array $params
+     *
+     * @return \Closure
+     */
+    public static function bind(array $params)
+    {
+        $selfClosure = NULL;
+
+        $closure = function (Container $container, $p, $c) use ($params, &$selfClosure) {
+            return $container->invoke([self::class, 'build'], [
+                'buildParams' => $params,
+                'selfClosure' => $selfClosure,
+                'params'      => $p,
+                'config'      => $c,
+            ]);
+        };
+
+        $selfClosure = $closure;
+
+        if (!Yii::$container->getBehavior('finder')) {
+            Yii::$container->attachBehavior('finder', DIContainerBehavior::class);
+        }
+
+        return $closure;
     }
 }

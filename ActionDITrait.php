@@ -6,7 +6,7 @@
  * Time: 12:00
  */
 
-namespace  MP\DIMagick;
+namespace MP\DIMagick;
 
 use Yii;
 use yii\base\Controller;
@@ -43,9 +43,19 @@ trait ActionDITrait
             $callable = [$action, 'run'];
         }
 
-        $actionParams = [];
+        $actionParams  = [];
+        $resolveParams = [];
+
+        foreach ((new \ReflectionMethod($callable[0], $callable[1]))->getParameters() as $i => $param) {
+            $resolveParams[$i] = [
+                'name'  => $param->getName(),
+                'class' => $param->getClass()->name ?? NULL,
+            ];
+        }
 
         try {
+            Yii::$container->setDIBuilderResolveParams($resolveParams);
+
             $args = Yii::$container->resolveCallableDependencies($callable, $params);
         } catch (InvalidConfigException $e) {
             if ($e->getPrevious() instanceof NotFoundHttpException) {
@@ -55,8 +65,8 @@ trait ActionDITrait
             throw new BadRequestHttpException($e->getMessage());
         }
 
-        foreach ((new \ReflectionMethod($callable[0], $callable[1]))->getParameters() as $i => $param) {
-            $actionParams[$param->getName()] = $args[$i];
+        foreach ($resolveParams as $i => $param) {
+            $actionParams[$param['name']] = $args[$i];
         }
 
         if (property_exists($this, 'actionParams')) {
