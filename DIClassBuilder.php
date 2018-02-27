@@ -23,10 +23,11 @@ use yii\web\NotFoundHttpException;
  */
 abstract class DIClassBuilder
 {
+    const EMPTY = 'buildDIDefault';
+
     /**
      * Build AR model
      *
-     * @param Container $container
      * @param array     $buildParams
      * @param \Closure  $selfClosure
      * @param array     $params
@@ -35,7 +36,7 @@ abstract class DIClassBuilder
      * @return mixed
      * @throws NotFoundHttpException
      */
-    public static function build(Container $container, array $buildParams = [], \Closure $selfClosure = NULL, array $params = [], array $config = [])
+    public static function build(array $buildParams = [], \Closure $selfClosure = NULL, array $params = [], array $config = [])
     {
         $id            = NULL;
         $model         = NULL;
@@ -47,9 +48,11 @@ abstract class DIClassBuilder
             throw new InvalidConfigException(Yii::t('app', 'The class for dependency is not specified.'));
         }
 
-        if (!self::checkNeedResolveClass($className) || isset($params['empty']) && $params['empty']) {
-            if (isset($params['empty'])) {
-                unset($params['empty']);
+        $index = array_search(self::EMPTY, $params);
+
+        if (!self::checkNeedResolveClass($className) || $index !== false) {
+            if ($index !== false) {
+                unset($params[$index]);
             }
 
             return Yii::$container->buildClass($className, $params, $config, $selfClosure);
