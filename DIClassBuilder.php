@@ -23,15 +23,16 @@ use yii\web\NotFoundHttpException;
  */
 abstract class DIClassBuilder
 {
-    const EMPTY = 'buildDIDefault';
+    const EMPTY          = 'buildDIDefault';
+    const EMPTY_INSTANCE = [self::EMPTY];
 
     /**
      * Build AR model
      *
-     * @param array     $buildParams
-     * @param \Closure  $selfClosure
-     * @param array     $params
-     * @param array     $config
+     * @param array    $buildParams
+     * @param \Closure $selfClosure
+     * @param array    $params
+     * @param array    $config
      *
      * @return mixed
      * @throws NotFoundHttpException
