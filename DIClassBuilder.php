@@ -132,7 +132,7 @@ abstract class DIClassBuilder
      *
      * @return \Closure
      */
-    public static function bind(array $params)
+    public static function bind(array $params = [])
     {
         $selfClosure = NULL;
 
