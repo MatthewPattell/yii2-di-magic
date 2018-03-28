@@ -50,6 +50,24 @@ class DIContainerBehavior extends Behavior
     }
 
     /**
+     * Remove DI bilder param
+     *
+     * @param int $index
+     *
+     * @return void
+     */
+    public function removeDiBuilderResolveParam(int $index): void
+    {
+        if (isset($this->diBuilderResolveParams[$index])) {
+            $params = $this->diBuilderResolveParams[$index];
+
+            unset($params[$index]);
+
+            $this->diBuilderResolveParams = $params;
+        }
+    }
+
+    /**
      * Build class
      *
      * @see Container::get

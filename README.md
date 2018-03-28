@@ -68,16 +68,9 @@ class ModelController extends Controller
     {
         // A search was made in the database. var_dump($model);
         ...
-        // Get class instance only. 'DIClassBuilder::EMPTY' key will be removed, it flag for get new instance 
-        $classInstance = Yii::$container->get(ARModel::class, [DIClassBuilder::EMPTY, 'someParam'], ['param' => 'value']);
-        // or 'DIClassBuilder::EMPTY_INSTANCE' will be removed
-        $classInstance = Yii::$container->get(ARModel::class, DIClassBuilder::EMPTY_INSTANCE);
-        
-        // Get duplicate $model
+              
+        // Get empty model
         $duplicateModel = Yii::$container->get(ARModel::class);
-        
-        // Get some class instance. 'DIClassBuilder::EMPTY' key not need, because class not specified in action params
-        $someModel = Yii::$container->get(SomeModel::class);
     }
     
     /**
@@ -90,7 +83,7 @@ class ModelController extends Controller
     public function actionSample(ARModel $model = NULL): void
     {        
         if (is_null($model)) {
-            $model = Yii::$container->get(ARModel::class, DIClassBuilder::EMPTY_INSTANCE);
+            // 
         }
     }
 }
