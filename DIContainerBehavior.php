@@ -59,7 +59,7 @@ class DIContainerBehavior extends Behavior
     public function removeDiBuilderResolveParam(int $index): void
     {
         if (isset($this->diBuilderResolveParams[$index])) {
-            $params = $this->diBuilderResolveParams[$index];
+            $params = $this->diBuilderResolveParams;
 
             unset($params[$index]);
 
